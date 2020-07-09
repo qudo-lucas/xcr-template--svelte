@@ -5,10 +5,13 @@ import livereload from 'rollup-plugin-livereload';
 import { terser } from 'rollup-plugin-terser';
 import injectProcess from 'rollup-plugin-inject-process-env';
 import alias from '@rollup/plugin-alias';
+import replace from "@rollup/plugin-replace";
 
 const production = !process.env.ROLLUP_WATCH;
 
 export default {
+	inlineDynamicImports : true,
+
 	input: 'src/main.js',
 	output: {
 		sourcemap: true,
@@ -50,6 +53,9 @@ export default {
 				},
 			]
 		}),
+		replace({
+            __dev__ : !production,
+        }),
 		// In dev mode, call `npm run start` once
 		// the bundle has been generated
 		!production && serve(),

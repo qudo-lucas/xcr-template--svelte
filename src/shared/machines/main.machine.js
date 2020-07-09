@@ -1,11 +1,8 @@
 import { actions } from 'xstate';
+
+import component from "shared/component.js";
+
 const { raise } = actions;
-
-import Auth from "views/auth/auth.svelte";
-import Signin from "views/auth/steps/signin.svelte";
-import GeneralInfo from "views/auth/steps/general-info.svelte";
-
-import Home from"views/home/home.svelte";
 
 export default {
     initial : "auth",
@@ -16,44 +13,28 @@ export default {
     },
     
     states : {
-        auth : {
-				initial : "signin",
-					
-            meta : {
-                component : Auth,
-            },
+        auth : component(import("views/auth/auth.svelte"), {
+			initial : "signin",
 					
             states : {
                 
-                    signin : {
-                        meta : {
-                            component : Signin
-                        },
-
+                    signin : component(import("views/auth/pages/signin.svelte"), {
                         on : {
-                            "NEXT" : "generalInfo"
+                            NEXT : "info"
                         }
-                    },
+                    }),
                 
-                    generalInfo : {
-                        meta : {
-                            component : GeneralInfo
-                        },
-
+                    info : component(import("views/auth/pages/general-info.svelte"), {
                         on : {
-                            "BACK" : "signin",
-                            "NEXT" : {
+                            BACK : "signin",
+                            NEXT : {
                                 actions : raise("HOME"),
                             }
                         }
-                    }
-            }
-        },
-			
-        home : {
-            meta : {
-                component : Home,
+                    }),
             },
-        },
+        }),
+			
+        home : component(import("views/home/home.svelte")),
     },
 };

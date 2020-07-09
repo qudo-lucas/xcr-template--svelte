@@ -1,5 +1,5 @@
 <script>
-import state from "shared/stores/state.js";
+import { send } from "shared/actions.js";
 </script>
 
 <form>
@@ -9,6 +9,6 @@ import state from "shared/stores/state.js";
     <input type="text" placeholder="Phone" />
 </form>
 <div class="nav">
-    <button on:click="{() => $state.send("BACK")}">Back</button>
-    <button on:click="{() => $state.send("HOME")}">Finish</button>
+    <button use:send={"BACK"}>Back</button>
+    <button use:send={"HOME"}>Finish</button>
 </div>

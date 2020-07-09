@@ -1,5 +1,5 @@
 <script>
-import state from "shared/stores/state.js";
+import { send } from "shared/actions.js";
 </script>
 
 <form>
@@ -7,5 +7,5 @@ import state from "shared/stores/state.js";
     <input type="password" placeholder="Password" />
 </form>
 <div class="nav">
-    <button on:click="{() => $state.send("NEXT")}">Next</button>
+    <button use:send="{"NEXT"}">Next</button>
 </div>
