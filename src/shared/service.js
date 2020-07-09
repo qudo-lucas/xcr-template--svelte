@@ -1,5 +1,5 @@
-import { writable, get } from "svelte/store";
-import { Machine, interpret} from "xstate";
+import { writable } from "svelte/store";
+import { Machine, interpret } from "xstate";
 import ComponentTree from "xstate-component-tree";
 
 import config from "shared/machines/main.machine.js";
@@ -38,7 +38,8 @@ if(__dev__) {
 // Handle routing
 const updateViewFromURL = () => {
     // Everything after the hash
-    // TODO: parse our params
+    // TODO: Parse out params and assign to xstate context
+    // TODO: regex it all up once I finalize url patterns to be used
     const path = window.location.hash.substring(2);
 
     if(routesMap.has(path)) {
@@ -52,13 +53,13 @@ updateViewFromURL();
 service.subscribe((current) =>
     routesMap.forEach((value, url) => {
         if(current.matches(value)) {
-            history.pushState({}, "Nemesis", `#/${url}`);
+            history.pushState({}, "Xstate View Controller", `#/${url}`);
         }
     })
 );
 
 // Recheck the URL when these things happen
-// TODO: this isn't super reliable.
+// TODO: This isn't super reliable.
 // TODO: Figure out the best url change hook to tap into.
 window.onpopstate = updateViewFromURL;
 window.onhashchange = updateViewFromURL;

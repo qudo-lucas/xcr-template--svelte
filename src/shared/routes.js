@@ -1,6 +1,6 @@
 export default {
-    auth           : "auth",
+    "auth"         : "auth",
     "auth/signin"  : "auth.signin",
-    "auth/info"  : "auth.info",
-    home : "home",
+    "auth/info"    : "auth.info",
+    "home"         : "home",
 }

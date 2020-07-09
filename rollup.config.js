@@ -1,91 +1,96 @@
-import svelte from 'rollup-plugin-svelte';
-import resolve from '@rollup/plugin-node-resolve';
-import commonjs from '@rollup/plugin-commonjs';
-import livereload from 'rollup-plugin-livereload';
-import { terser } from 'rollup-plugin-terser';
-import injectProcess from 'rollup-plugin-inject-process-env';
-import alias from '@rollup/plugin-alias';
+import commonjs from "@rollup/plugin-commonjs";
+import resolve from "@rollup/plugin-node-resolve";
+import svelte from "rollup-plugin-svelte";
+import babel from "rollup-plugin-babel";
+import livereload from "rollup-plugin-livereload";
+import json from "@rollup/plugin-json";
+import sass from "rollup-plugin-sass";
+import copy from "rollup-plugin-copy";
+import injectProcessEnv from "rollup-plugin-inject-process-env";
+import alias from "@rollup/plugin-alias";
+import { scss as preSCSS } from "svelte-preprocess";
 import replace from "@rollup/plugin-replace";
+
+const INPUT_DIR = "src";
+const OUTPUT_DIR = "build";
 
 const production = !process.env.ROLLUP_WATCH;
 
-export default {
-	inlineDynamicImports : true,
+const serve = () => {
+    let started = false;
 
-	input: 'src/main.js',
-	output: {
-		sourcemap: true,
-		format: 'iife',
-		name: 'app',
-		file: 'public/build/bundle.js'
-	},
-	plugins: [
-		svelte({
-			// enable run-time checks when not in production
-			dev: !production,
-			// we'll extract any component CSS out into
-			// a separate file - better for performance
-			css: css => {
-				css.write('public/build/bundle.css');
-			}
-		}),
-
-		// If you have external dependencies installed from
-		// npm, you'll most likely need these plugins. In
-		// some cases you'll need additional configuration -
-		// consult the documentation for details:
-		// https://github.com/rollup/plugins/tree/master/packages/commonjs
-		resolve({
-			browser: true,
-			dedupe: ['svelte']
-		}),
-		commonjs(),
-		injectProcess(),
-		alias({
-			entries : [
-				{
-					find  		: "shared",
-					replacement : "./src/shared"
-				},
-				{
-					find  		: "views",
-					replacement : "./src/views"
-				},
-			]
-		}),
-		replace({
-            __dev__ : !production,
-        }),
-		// In dev mode, call `npm run start` once
-		// the bundle has been generated
-		!production && serve(),
-
-		// Watch the `public` directory and refresh the
-		// browser on changes when not in production
-		!production && livereload('public'),
-
-		// If we're building for production (npm run build
-		// instead of npm run dev), minify
-		production && terser()
-	],
-	watch: {
-		clearScreen: false
-	}
+    return {
+        writeBundle() {
+            if(!started) {
+                started = true;
+                require("child_process").spawn("npm", [ "run", "serve", "--", "--dev" ], {
+                    stdio : [ "ignore", "inherit", "inherit" ],
+                    shell : true,
+                });
+            }
+        },
+    };
 };
 
-function serve() {
-	let started = false;
+export default {
+	// Used in state charts
+    inlineDynamicImports : true,
+    
+    input  : `${INPUT_DIR}/main.js`,
+    output : {
+        format    : "iife",
+        file      : `${OUTPUT_DIR}/bundle.js`,
+        name      : "app",
+        sourcemap : true,
+    },
+    plugins : [
+        svelte({
+            // we'll extract any component CSS out into
+            // a separate file — better for performance 
+            dev        : !production,
 
-	return {
-		writeBundle() {
-			if (!started) {
-				started = true;
+            preprocess : [
+                preSCSS({  }),
+            ],
 
-				require('child_process').spawn('npm', ['run', 'start', '--', '--dev'], {
-					stdio: ['ignore', 'inherit', 'inherit'],
-					shell: true
-				});
-			}
-		}
-	};
-}
+            css : (css) => {
+                css.write(`${OUTPUT_DIR}/bundle.css`);
+            },
+        }),
+        resolve({
+            browser : true,
+            dedupe  : [ "svelte" ],
+        }),
+        babel({
+            exclude        : "node_modules/**",
+            runtimeHelpers : true,
+        }),
+        commonjs(),
+        copy({
+            targets : [
+                { src : `${INPUT_DIR}/public/**/*`, dest : OUTPUT_DIR },
+                { src : `${INPUT_DIR}/index.html`, dest : OUTPUT_DIR },
+            ],
+        }),
+        sass({
+            output  : `${OUTPUT_DIR}/main.css`,
+        }),
+        json(),
+        injectProcessEnv({
+            NODE_ENV : production,
+        }),
+        alias({
+            entries : [
+                { find : "shared", replacement : `./${INPUT_DIR}/shared` },
+                { find : "test", replacement : "./test" },
+                { find : "views", replacement : `./${INPUT_DIR}/views` },
+            ],
+        }),
+        replace({
+            __dev__ : !production,
+        }),
+        // dynamicImportVariables(),
+        !production && livereload(`${OUTPUT_DIR}`),
+        !production && serve(),
+    ],
+};
