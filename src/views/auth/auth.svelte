@@ -1,10 +1,10 @@
 <script>
-import Children from "shared/components/children/children.svelte";
+import { Components } from "xcr-svelte";
 
 export let components;
 </script>
 
 <div class="card">
     <h1>Auth</h1>
-    <Children {components} />
+    <Components {components} />
 </div>

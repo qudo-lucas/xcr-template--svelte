@@ -1,6 +1,6 @@
-import { actions } from 'xstate';
+import { actions } from "xstate";
 
-import component from "shared/component.js";
+import { component } from "xcr";
 
 const { raise } = actions;
 
@@ -17,21 +17,20 @@ export default {
 			initial : "signin",
 					
             states : {
-                
-                    signin : component(import("views/auth/pages/signin.svelte"), {
-                        on : {
-                            NEXT : "info"
+                signin : component(import("views/auth/pages/signin.svelte"), {
+                    on : {
+                        NEXT : "info"
+                    }
+                }),
+            
+                info : component(import("views/auth/pages/general-info.svelte"), {
+                    on : {
+                        BACK : "signin",
+                        NEXT : {
+                            actions : raise("HOME"),
                         }
-                    }),
-                
-                    info : component(import("views/auth/pages/general-info.svelte"), {
-                        on : {
-                            BACK : "signin",
-                            NEXT : {
-                                actions : raise("HOME"),
-                            }
-                        }
-                    }),
+                    }
+                }),
             },
         }),
 			

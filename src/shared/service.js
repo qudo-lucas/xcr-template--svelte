@@ -1,71 +1,31 @@
 import { writable } from "svelte/store";
-import { Machine, interpret } from "xstate";
-import ComponentTree from "xstate-component-tree";
-
+import router from "xcr";
 import config from "shared/machines/main.machine.js";
-import routes from "shared/routes.js";
 
-// Add routes as top level events
-const updatedConfig = {
-    ...config,
-
-    on : {
-        ...config.on,
-        ...routes,
-    },
+const routes =  {
+    auth          : "auth",
+    "auth/signin" : "auth.signin",
+    "auth/info"   : "auth.info",
+    home          : "home",
 };
 
-// eslint-disable-next-line new-cap
-const machine = Machine(updatedConfig);
-const service = interpret(machine);
-
-const routesMap = new Map(Object.entries(routes));
-
-// Component tree
-const components = writable([],
-    (set) => new ComponentTree(service, set)
+// Init the router
+const { service, components } = router(
+    config,
+    routes,
+    {
+        debug : __dev__,
+    }
 );
 
-service.start();
-
-// Expose the service in the console
-if(__dev__) {
-    setTimeout(() => {
-        window.state = service;
-    }, 1000);
-}
-
-// Handle routing
-const updateViewFromURL = () => {
-    // Everything after the hash
-    // TODO: Parse out params and assign to xstate context
-    // TODO: regex it all up once I finalize url patterns to be used
-    const path = window.location.hash.substring(2);
-
-    if(routesMap.has(path)) {
-        service.send(path);
-    }
-};
-
-updateViewFromURL();
-
-// Update url if current state matches one of the routes in routes.js
-service.subscribe((current) =>
-    routesMap.forEach((value, url) => {
-        if(current.matches(value)) {
-            history.pushState({}, "Xstate View Controller", `#/${url}`);
-        }
+// Whenever the components list updates save off value to store.
+const tree = writable([], (set) =>
+    components((list) => {
+        set(list);
     })
 );
 
-// Recheck the URL when these things happen
-// TODO: This isn't super reliable.
-// TODO: Figure out the best url change hook to tap into.
-window.onpopstate = updateViewFromURL;
-window.onhashchange = updateViewFromURL;
-
 export default service;
-
 export {
-    components,
+    tree as components,
 };

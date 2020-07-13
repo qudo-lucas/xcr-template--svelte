@@ -33,7 +33,7 @@ const serve = () => {
 };
 
 export default {
-	// Used in state charts
+    // Used in state charts
     inlineDynamicImports : true,
     
     input  : `${INPUT_DIR}/main.js`,
@@ -46,7 +46,7 @@ export default {
     plugins : [
         svelte({
             // we'll extract any component CSS out into
-            // a separate file — better for performance 
+            // a separate file — better for performance
             dev        : !production,
 
             preprocess : [
@@ -61,10 +61,10 @@ export default {
             browser : true,
             dedupe  : [ "svelte" ],
         }),
-        babel({
-            exclude        : "node_modules/**",
-            runtimeHelpers : true,
-        }),
+        // babel({
+        //     exclude        : "node_modules/**",
+        //     runtimeHelpers : true,
+        // }),
         commonjs(),
         copy({
             targets : [
@@ -89,7 +89,6 @@ export default {
         replace({
             __dev__ : !production,
         }),
-        // dynamicImportVariables(),
         !production && livereload(`${OUTPUT_DIR}`),
         !production && serve(),
     ],

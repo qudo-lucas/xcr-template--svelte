@@ -1,9 +1,10 @@
 <script>	
 import { components } from "shared/service.js";
 
-import Children from "shared/components/children/children.svelte";
+import { Components } from "xcr-svelte";
+
 </script>
 
 <div class="view">
-	<Children components={$components} />
+	<Components components={$components} />
 </div>
