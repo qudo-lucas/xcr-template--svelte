@@ -1,11 +1,11 @@
-import { writable } from "svelte/store";
 import router from "xcr";
+import { writable } from "svelte/store";
 import config from "shared/machines/main.machine.js";
 
 const routes =  {
     auth          : "auth",
-    "auth/signin" : "auth.signin",
     "auth/info"   : "auth.info",
+    "auth/signin" : "auth.signin",
     home          : "home",
 };
 
@@ -19,11 +19,13 @@ const { service, components } = router(
 );
 
 // Whenever the components list updates save off value to store.
-const tree = writable([], (set) =>
+const tree = writable([], (set) => {
     components((list) => {
         set(list);
-    })
-);
+
+        console.log("list", list);
+    });
+});
 
 export default service;
 export {

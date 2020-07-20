@@ -2,6 +2,8 @@
 import { Components } from "xcr-svelte";
 
 export let components;
+
+$: console.log(components);
 </script>
 
 <div class="card">

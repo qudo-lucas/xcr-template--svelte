@@ -4,6 +4,8 @@ import { component } from "xcr";
 
 const { raise } = actions;
 
+import SignIn from "views/auth/pages/signin.svelte";
+
 export default {
     initial : "auth",
 
@@ -17,7 +19,7 @@ export default {
 			initial : "signin",
 					
             states : {
-                signin : component(import("views/auth/pages/signin.svelte"), {
+                signin : component(SignIn, {
                     on : {
                         NEXT : "info"
                     }
